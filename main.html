@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send My Location to David</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+        background-color: #f0f4f8;
+      }
+      h1 {
+        color: #333;
+      }
+      button {
+        padding: 15px 30px;
+        font-size: 18px;
+        background-color: #0088cc;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0077b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Send My Location to David</h1>
+    <p>
+      Tap the button below to send your exact location to David on Telegram.
+    </p>
+    <button onclick="sendLocation()">📍 Send My Location</button>
+
+    <script>
+      function sendLocation() {
+        if (!navigator.geolocation) {
+          alert('Geolocation is not supported by your browser.');
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error);
+      }
+
+      function success(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+        const message = `Hi David, here is my location: ${mapsLink}`;
+        const encodedMessage = encodeURIComponent(message);
+
+        // Open Telegram message link
+        window.location.href = `https://t.me/share/url?url=${mapsLink}&text=${encodedMessage}`;
+      }
+
+      function error() {
+        alert('Unable to get your location. Please make sure GPS is enabled.');
+      }
+    </script>
+  </body>
+</html>
