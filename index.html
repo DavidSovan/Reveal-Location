@@ -3,50 +3,379 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Send My Location to David</title>
+    <title>បង្ហាញទីតាំង</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Animated background particles */
+      .particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+          opacity: 0.3;
+        }
+        50% {
+          transform: translateY(-20px) rotate(180deg);
+          opacity: 0.8;
+        }
+      }
+
+      /* Glassmorphism container */
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        padding: 60px 50px;
         text-align: center;
-        padding: 50px;
-        background-color: #f0f4f8;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+        max-width: 500px;
+        width: 90%;
+        transform: translateY(0);
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
+
+      .container:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 35px 70px rgba(0, 0, 0, 0.15);
+      }
+
       h1 {
-        color: #333;
-      }
-      button {
-        padding: 15px 30px;
-        font-size: 18px;
-        background-color: #0088cc;
         color: white;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        background: linear-gradient(45deg, #fff, #f0f9ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
-      button:hover {
-        background-color: #0077b3;
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        line-height: 1.6;
+        font-weight: 400;
+      }
+
+      .location-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 30px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        animation: pulse 2s ease-in-out infinite;
+        box-shadow: 0 10px 30px rgba(238, 90, 36, 0.3);
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 10px 30px rgba(238, 90, 36, 0.3);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 15px 40px rgba(238, 90, 36, 0.4);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 10px 30px rgba(238, 90, 36, 0.3);
+        }
+      }
+
+      .share-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 18px 40px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 200px;
+      }
+
+      .share-button:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .share-button:hover:before {
+        left: 100%;
+      }
+
+      .share-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.6);
+      }
+
+      .share-button:active {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+      }
+
+      .share-button.loading {
+        pointer-events: none;
+        opacity: 0.8;
+      }
+
+      .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .success-message,
+      .error-message {
+        margin-top: 20px;
+        padding: 15px 25px;
+        border-radius: 15px;
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+      }
+
+      .success-message {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+      }
+
+      .error-message {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+      }
+
+      .success-message.show,
+      .error-message.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .status-indicator {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        animation: blink 2s ease-in-out infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .container {
+          padding: 40px 30px;
+          margin: 20px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+
+        .location-icon {
+          width: 60px;
+          height: 60px;
+          font-size: 2rem;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Send My Location to David</h1>
-    <p>
-      Tap the button below to send your exact location to David on Telegram.
-    </p>
-    <button onclick="sendLocation()">📍 Send My Location</button>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+      <div class="status-indicator"></div>
+
+      <div class="location-icon">📍</div>
+
+      <h1>បង្ហាញទីតាំងរបស់អ្នក</h1>
+      <p class="subtitle">
+        ចុចប៊ូតុងខាងក្រោមនេះដើម្បីផ្ញើទីតាំងរបស់អ្នកទៅកាន់ Telegram
+      </p>
+
+      <button class="share-button" onclick="sendLocation()">
+        <div class="loading-spinner"></div>
+        <span class="button-text">📍 បង្ហាញទីតាំង</span>
+      </button>
+
+      <div class="success-message" id="successMessage">
+        ✅ ទីតាំងរបស់អ្នកបានផ្ញើដោយជោគជ័យ!
+      </div>
+
+      <div class="error-message" id="errorMessage">
+        ❌ បរាជ័យក្នុងការផ្ញើទីតាំង។ សូមព្យាយាមម្តងទៀត។
+      </div>
+    </div>
 
     <script>
       const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN";
       const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID";
 
+      // Create animated particles
+      function createParticles() {
+        const particlesContainer = document.getElementById("particles");
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement("div");
+          particle.className = "particle";
+          particle.style.left = Math.random() * 100 + "%";
+          particle.style.top = Math.random() * 100 + "%";
+          particle.style.animationDelay = Math.random() * 6 + "s";
+          particle.style.animationDuration = Math.random() * 3 + 3 + "s";
+          particlesContainer.appendChild(particle);
+        }
+      }
+
+      function showMessage(type, show = true) {
+        const successMsg = document.getElementById("successMessage");
+        const errorMsg = document.getElementById("errorMessage");
+
+        // Hide both messages first
+        successMsg.classList.remove("show");
+        errorMsg.classList.remove("show");
+
+        if (show) {
+          setTimeout(() => {
+            if (type === "success") {
+              successMsg.classList.add("show");
+            } else {
+              errorMsg.classList.add("show");
+            }
+          }, 100);
+
+          // Auto hide after 4 seconds
+          setTimeout(() => {
+            successMsg.classList.remove("show");
+            errorMsg.classList.remove("show");
+          }, 4000);
+        }
+      }
+
+      function setLoadingState(loading) {
+        const button = document.querySelector(".share-button");
+        const spinner = document.querySelector(".loading-spinner");
+        const buttonText = document.querySelector(".button-text");
+
+        if (loading) {
+          button.classList.add("loading");
+          spinner.style.display = "inline-block";
+          buttonText.textContent = "កំពុងផ្ញើ...";
+        } else {
+          button.classList.remove("loading");
+          spinner.style.display = "none";
+          buttonText.textContent = "📍 បង្ហាញទីតាំង";
+        }
+      }
+
       function sendLocation() {
         if (!navigator.geolocation) {
-          alert("Geolocation is not supported by your browser.");
+          showMessage("error");
           return;
         }
 
-        navigator.geolocation.getCurrentPosition(success, error);
+        setLoadingState(true);
+        showMessage("", false); // Hide any existing messages
+
+        navigator.geolocation.getCurrentPosition(success, error, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        });
       }
+
       async function success(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
@@ -59,20 +388,50 @@
           });
 
           const result = await response.json();
-          alert(
-            result.success
-              ? "✅ Location sent to Telegram!"
-              : "❌ Failed to send."
-          );
+          setLoadingState(false);
+
+          if (result.success) {
+            showMessage("success");
+          } else {
+            showMessage("error");
+          }
         } catch (err) {
-          alert("⚠️ Error sending location. Please try again.");
+          setLoadingState(false);
+          showMessage("error");
         }
       }
-      function error() {
-        alert(
-          "Unable to get your location. Please make sure GPS is enabled and you granted permission."
-        );
+
+      function error(err) {
+        setLoadingState(false);
+        showMessage("error");
+        console.error("Geolocation error:", err);
       }
+
+      // Initialize particles when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        createParticles();
+
+        // Add some interactive effects
+        document
+          .querySelector(".container")
+          .addEventListener("mouseenter", function () {
+            this.style.transform = "translateY(-10px) scale(1.02)";
+          });
+
+        document
+          .querySelector(".container")
+          .addEventListener("mouseleave", function () {
+            this.style.transform = "translateY(0) scale(1)";
+          });
+      });
+
+      // Add keyboard support
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          sendLocation();
+        }
+      });
     </script>
   </body>
 </html>
