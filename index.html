@@ -36,28 +36,42 @@
     <button onclick="sendLocation()">📍 Send My Location</button>
 
     <script>
+      const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN";
+      const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID";
+
       function sendLocation() {
         if (!navigator.geolocation) {
-          alert('Geolocation is not supported by your browser.');
+          alert("Geolocation is not supported by your browser.");
           return;
         }
 
         navigator.geolocation.getCurrentPosition(success, error);
       }
-
-      function success(position) {
+      async function success(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
-        const message = `Hi David, here is my location: ${mapsLink}`;
-        const encodedMessage = encodeURIComponent(message);
 
-        // Open Telegram message link
-        window.location.href = `https://t.me/share/url?url=${mapsLink}&text=${encodedMessage}`;
+        try {
+          const response = await fetch("/api/sendLocation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat, lon }),
+          });
+
+          const result = await response.json();
+          alert(
+            result.success
+              ? "✅ Location sent to Telegram!"
+              : "❌ Failed to send."
+          );
+        } catch (err) {
+          alert("⚠️ Error sending location. Please try again.");
+        }
       }
-
       function error() {
-        alert('Unable to get your location. Please make sure GPS is enabled.');
+        alert(
+          "Unable to get your location. Please make sure GPS is enabled and you granted permission."
+        );
       }
     </script>
   </body>
