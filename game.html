@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bouncy Ball Adventure — Super Fun Game! 🌟</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@400;600;700;800&display=swap');
+    
+    :root{
+      --sky-blue: #87CEEB;
+      --grass-green: #98FB98;
+      --sun-yellow: #FFD700;
+      --cloud-white: #FFFAF0;
+      --ball-pink: #FF69B4;
+      --ball-orange: #FF8C00;
+      --obstacle-purple: #9370DB;
+      --shadow: rgba(0,0,0,0.2);
+    }
+    
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:'Nunito', sans-serif}
+    body{
+      background: linear-gradient(180deg, #87CEEB 0%, #98FB98 70%, #90EE90 100%);
+      color:#2F4F4F;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      overflow-x: hidden;
+    }
+    
+    .clouds {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 100px;
+      opacity: 0.8;
+      animation: float 20s infinite linear;
+    }
+    
+    .cloud:before, .cloud:after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 100px;
+    }
+    
+    .cloud1 {
+      width: 100px;
+      height: 40px;
+      top: 20%;
+      animation-delay: 0s;
+    }
+    
+    .cloud1:before {
+      width: 50px;
+      height: 50px;
+      top: -25px;
+      left: 10px;
+    }
+    
+    .cloud1:after {
+      width: 60px;
+      height: 40px;
+      top: -15px;
+      right: 10px;
+    }
+    
+    .cloud2 {
+      width: 80px;
+      height: 30px;
+      top: 40%;
+      animation-delay: -10s;
+    }
+    
+    .cloud2:before {
+      width: 40px;
+      height: 40px;
+      top: -20px;
+      left: 15px;
+    }
+    
+    .cloud2:after {
+      width: 50px;
+      height: 30px;
+      top: -10px;
+      right: 15px;
+    }
+    
+    .cloud3 {
+      width: 120px;
+      height: 50px;
+      top: 10%;
+      animation-delay: -5s;
+    }
+    
+    .cloud3:before {
+      width: 60px;
+      height: 60px;
+      top: -30px;
+      left: 20px;
+    }
+    
+    .cloud3:after {
+      width: 70px;
+      height: 50px;
+      top: -20px;
+      right: 20px;
+    }
+    
+    @keyframes float {
+      0% { transform: translateX(-200px); }
+      100% { transform: translateX(calc(100vw + 200px)); }
+    }
+    
+    .game-wrap{
+      width:920px;
+      max-width:96vw;
+      background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+      backdrop-filter: blur(10px);
+      border-radius:25px;
+      padding:25px;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.1),
+        inset 0 2px 0 rgba(255,255,255,0.3),
+        0 0 0 1px rgba(255,255,255,0.2);
+      border: 3px solid rgba(255,255,255,0.4);
+    }
+    
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      margin-bottom:20px;
+      flex-wrap: wrap;
+    }
+    
+    h1{
+      font-family: 'Fredoka One', cursive;
+      font-size: 28px;
+      margin:0;
+      color: #FF6B6B;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .scoreboard{
+      display:flex;
+      gap:15px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+    
+    .pill{
+      background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-weight: 800;
+      color: white;
+      font-size: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    canvas{
+      display:block;
+      width:100%;
+      background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+      border-radius: 20px;
+      box-shadow: 
+        inset 0 -8px 20px rgba(0,0,0,0.1),
+        0 8px 25px rgba(0,0,0,0.15);
+      border: 4px solid rgba(255,255,255,0.4);
+    }
+    
+    .controls{
+      display:flex;
+      gap:15px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:20px;
+      flex-wrap: wrap;
+    }
+    
+    .hint{
+      color: #2F4F4F;
+      font-size: 16px;
+      font-weight: 600;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+    
+    .btn{
+      background: linear-gradient(135deg, #45B7D1, #96CEB4);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      border: 3px solid rgba(255,255,255,0.3);
+      transition: all 0.2s ease;
+      font-family: 'Nunito', sans-serif;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+    
+    .btn:active{
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+    
+    footer{
+      color: #2F4F4F;
+      font-size: 14px;
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 600;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+    
+    @media (max-width:560px){
+      .game-wrap{padding:20px}
+      h1{font-size:24px}
+      .pill{padding:10px 16px;font-size:14px}
+      .btn{padding:10px 20px;font-size:14px}
+      .hint{font-size:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="clouds">
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+  </div>
+
+  <div class="game-wrap">
+    <header>
+      <h1>🌈 Bouncy Ball Adventure 🌟</h1>
+      <div class="scoreboard">
+        <div class="pill">Score: <span id="score">0</span></div>
+        <div class="pill">Best: <span id="best">0</span></div>
+      </div>
+    </header>
+
+    <canvas id="game" width="800" height="360" aria-label="Bouncy ball adventure game"></canvas>
+
+    <div class="controls">
+      <div class="hint">🎮 Press <strong>Space</strong> or <strong>↑</strong> or <em>tap</em> to jump! Avoid the magic blocks! 🚀</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn" id="restart">🔄 New Game</button>
+        <button class="btn" id="mute">🔊 Sound</button>
+      </div>
+    </div>
+    <footer>✨ Made with love for little adventurers! ✨</footer>
+  </div>
+
+  <script>
+  // --- Cartoon-style endless runner game ---
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Game state
+  let running = false;
+  let score = 0;
+  let best = +localStorage.getItem('ballJumpBest') || 0;
+  document.getElementById('best').textContent = best;
+
+  // Physics
+  const gravity = 1200; // px/s^2
+  const jumpVel = -480; // px/s
+
+  // Player
+  const player = {
+    x: 120,
+    y: H - 70,
+    r: 22,
+    vy: 0,
+    grounded: true,
+    bounceTime: 0 // for animation
+  };
+
+  // Ground
+  const groundY = H - 45;
+
+  // Obstacles
+  let obstacles = [];
+  let spawnTimer = 0;
+  let spawnInterval = 1.8; // seconds
+
+  // Game speed and difficulty
+  let gameSpeed = 280; // px/s base speed
+  const speedRamp = 5; // how much speed increases per second
+  let timeElapsed = 0;
+
+  // Animation
+  let animTime = 0;
+
+  // Stars for extra fun
+  let stars = [];
+  for(let i = 0; i < 20; i++){
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * (H/2),
+      size: Math.random() * 3 + 1,
+      twinkle: Math.random() * Math.PI * 2
+    });
+  }
+
+  // UI
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const restartBtn = document.getElementById('restart');
+  const muteBtn = document.getElementById('mute');
+  let muted = false;
+
+  // Fun sound effects
+  let audioCtx = null;
+  function playJumpSound(){
+    if(muted) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(400, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+      o.start();
+      o.stop(audioCtx.currentTime + 0.2);
+    }catch(e){}
+  }
+
+  function playGameOverSound(){
+    if(muted) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(300, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      o.start();
+      o.stop(audioCtx.currentTime + 0.5);
+    }catch(e){}
+  }
+
+  // Utility: random
+  const rand = (a,b)=> Math.random()*(b-a)+a;
+
+  // Spawn obstacle
+  function spawnObstacle(){
+    const h = rand(25,80);
+    const w = rand(22,40);
+    const gapFromGround = rand(0, 8);
+    obstacles.push({x: W + 50, w, h, y: groundY - h - gapFromGround, hue: Math.random() * 360});
+  }
+
+  // Reset game
+  function start(){
+    running = true;
+    score = 0; timeElapsed = 0; gameSpeed = 280; obstacles = [];
+    spawnInterval = 1.8; spawnTimer = 0; animTime = 0;
+    player.y = groundY - player.r; player.vy = 0; player.grounded = true; player.bounceTime = 0;
+    lastTime = null;
+    loop(performance.now());
+  }
+
+  function gameOver(){
+    running = false;
+    playGameOverSound();
+    if(score>best){ 
+      best = Math.floor(score); 
+      localStorage.setItem('ballJumpBest', best); 
+      bestEl.textContent = best; 
+    }
+  }
+
+  // Input
+  function jump(){
+    if(!running) { start(); return; }
+    if(player.grounded){ 
+      player.vy = jumpVel; 
+      player.grounded = false; 
+      player.bounceTime = 0;
+      playJumpSound(); 
+    }
+  }
+
+  window.addEventListener('keydown', e=>{
+    if(e.code === 'Space' || e.code === 'ArrowUp'){
+      e.preventDefault(); jump();
+    }
+  });
+  canvas.addEventListener('click', ()=> jump());
+  canvas.addEventListener('touchstart', e=>{ e.preventDefault(); jump(); }, {passive:false});
+  restartBtn.addEventListener('click', ()=> start());
+  muteBtn.addEventListener('click', ()=>{ 
+    muted = !muted; 
+    muteBtn.innerHTML = muted? '🔇 Sound' : '🔊 Sound'; 
+  });
+
+  // Collision test (circle vs rect)
+  function circleRectCollision(cx,cy,r, rx,ry,rw,rh){
+    const nx = Math.max(rx, Math.min(cx, rx+rw));
+    const ny = Math.max(ry, Math.min(cy, ry+rh));
+    const dx = cx-nx, dy = cy-ny; 
+    return (dx*dx+dy*dy) <= r*r;
+  }
+
+  // Game loop
+  let lastTime = null;
+  function loop(ts){
+    if(!lastTime) lastTime = ts; 
+    const dt = Math.min(0.05,(ts-lastTime)/1000); 
+    lastTime = ts;
+    animTime += dt;
+    
+    if(running){
+      // update timers and difficulty
+      timeElapsed += dt; 
+      score += dt*12*(1 + timeElapsed*0.04); 
+      gameSpeed += speedRamp * dt;
+      spawnTimer -= dt; 
+      if(spawnTimer <= 0){ 
+        spawnObstacle(); 
+        spawnInterval = Math.max(0.7, spawnInterval - 0.015); 
+        spawnTimer = spawnInterval; 
+      }
+
+      // physics
+      player.vy += gravity * dt; 
+      player.y += player.vy * dt;
+      if(player.y + player.r >= groundY){ 
+        player.y = groundY - player.r; 
+        player.vy = 0; 
+        player.grounded = true; 
+      }
+      
+      if(!player.grounded) player.bounceTime += dt;
+
+      // move obstacles
+      for(let i=obstacles.length-1;i>=0;i--){
+        obstacles[i].x -= gameSpeed * dt;
+        if(obstacles[i].x + obstacles[i].w < -60) obstacles.splice(i,1);
+      }
+
+      // collisions
+      for(const ob of obstacles){
+        if(circleRectCollision(player.x, player.y, player.r-2, ob.x, ob.y, ob.w, ob.h)){
+          gameOver(); break;
+        }
+      }
+
+      scoreEl.textContent = Math.floor(score);
+    }
+
+    // --- DRAWING ---
+    ctx.clearRect(0,0,W,H);
+
+    // Animated sky gradient
+    const skyGrad = ctx.createLinearGradient(0,0,0,H);
+    skyGrad.addColorStop(0, `hsl(${200 + Math.sin(animTime*0.5)*10}, 70%, 75%)`);
+    skyGrad.addColorStop(0.6, `hsl(${120 + Math.sin(animTime*0.3)*15}, 65%, 70%)`);
+    skyGrad.addColorStop(1, `hsl(${90 + Math.sin(animTime*0.4)*10}, 60%, 65%)`);
+    ctx.fillStyle = skyGrad; 
+    ctx.fillRect(0,0,W,H);
+
+    // Animated stars
+    for(const star of stars){
+      const twinkle = 0.5 + 0.5 * Math.sin(animTime * 2 + star.twinkle);
+      ctx.fillStyle = `rgba(255,255,255,${twinkle * 0.8})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size * twinkle, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // Animated sun
+    const sunX = W - 80, sunY = 60;
+    const sunGlow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 50);
+    sunGlow.addColorStop(0, 'rgba(255,215,0,0.8)');
+    sunGlow.addColorStop(0.7, 'rgba(255,140,0,0.4)');
+    sunGlow.addColorStop(1, 'rgba(255,140,0,0)');
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(sunX-50, sunY-50, 100, 100);
+    
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 25 + Math.sin(animTime*2)*2, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Sun rays
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 3;
+    for(let i = 0; i < 8; i++){
+      const angle = (i / 8) * Math.PI * 2 + animTime;
+      const x1 = sunX + Math.cos(angle) * 35;
+      const y1 = sunY + Math.sin(angle) * 35;
+      const x2 = sunX + Math.cos(angle) * 45;
+      const y2 = sunY + Math.sin(angle) * 45;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    // Cartoon ground with grass texture
+    const groundGrad = ctx.createLinearGradient(0, groundY, 0, H);
+    groundGrad.addColorStop(0, '#90EE90');
+    groundGrad.addColorStop(1, '#32CD32');
+    ctx.fillStyle = groundGrad; 
+    ctx.fillRect(0, groundY, W, H-groundY);
+    
+    // Grass blades
+    ctx.strokeStyle = '#228B22';
+    ctx.lineWidth = 2;
+    for(let g = 0; g < W; g += 15){
+      const grassX = (g + (timeElapsed*50 % 15));
+      const grassHeight = 8 + Math.sin((g + timeElapsed*100)*0.1) * 3;
+      ctx.beginPath();
+      ctx.moveTo(grassX, groundY);
+      ctx.lineTo(grassX + 2, groundY - grassHeight);
+      ctx.stroke();
+    }
+
+    // Floating flowers
+    ctx.fillStyle = '#FF69B4';
+    for(let f = 0; f < 5; f++){
+      const flowerX = ((f * 150) + (timeElapsed*30 % 150)) % W;
+      const flowerY = groundY - 25 + Math.sin((f + timeElapsed*2) * 0.5) * 5;
+      
+      // Flower petals
+      for(let p = 0; p < 6; p++){
+        const angle = (p / 6) * Math.PI * 2;
+        const px = flowerX + Math.cos(angle) * 6;
+        const py = flowerY + Math.sin(angle) * 6;
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI*2);
+        ctx.fill();
+      }
+      
+      // Flower center
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(flowerX, flowerY, 3, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#FF69B4';
+    }
+
+    // Cartoon obstacles with eyes and personality
+    for(const ob of obstacles){
+      const wobble = Math.sin(animTime * 4 + ob.x * 0.01) * 1;
+      
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.15)';
+      ctx.fillRect(ob.x+8, ob.y+12+wobble, ob.w, ob.h);
+      
+      // Main body with rainbow gradient
+      const obstacleGrad = ctx.createLinearGradient(ob.x, ob.y, ob.x+ob.w, ob.y+ob.h);
+      obstacleGrad.addColorStop(0, `hsl(${ob.hue}, 70%, 60%)`);
+      obstacleGrad.addColorStop(1, `hsl(${(ob.hue + 60) % 360}, 70%, 50%)`);
+      ctx.fillStyle = obstacleGrad;
+      
+      roundRect(ctx, ob.x, ob.y+wobble, ob.w, ob.h, 12, true, false);
+      
+      // Shine
+      ctx.fillStyle = 'rgba(255,255,255,0.3)'; 
+      ctx.fillRect(ob.x+6, ob.y+6+wobble, ob.w-12, 8);
+      
+      // Cartoon eyes
+      ctx.fillStyle = 'white';
+      const eyeY = ob.y + ob.h*0.3 + wobble;
+      ctx.beginPath();
+      ctx.ellipse(ob.x + ob.w*0.3, eyeY, 4, 6, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(ob.x + ob.w*0.7, eyeY, 4, 6, 0, 0, Math.PI*2);
+      ctx.fill();
+      
+      // Eye pupils
+      ctx.fillStyle = '#2F4F4F';
+      ctx.beginPath();
+      ctx.arc(ob.x + ob.w*0.3 - 1, eyeY, 2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ob.x + ob.w*0.7 - 1, eyeY, 2, 0, Math.PI*2);
+      ctx.fill();
+      
+      // Cute mouth
+      ctx.strokeStyle = '#2F4F4F';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(ob.x + ob.w*0.5, ob.y + ob.h*0.7 + wobble, 6, 0, Math.PI);
+      ctx.stroke();
+    }
+
+    // Player shadow (cartoon style)
+    ctx.fillStyle = 'rgba(0,0,0,0.2)'; 
+    ctx.beginPath(); 
+    ctx.ellipse(player.x+6, groundY+8, player.r+8, 10, 0, 0, Math.PI*2); 
+    ctx.fill();
+
+    // Player (bouncy cartoon ball)
+    const squash = player.grounded ? 1 + Math.sin(animTime*8)*0.1 : 1 + Math.sin(player.bounceTime*15)*0.05;
+    const ballGrad = ctx.createRadialGradient(player.x-8, player.y-8, 0, player.x, player.y, player.r*1.5);
+    ballGrad.addColorStop(0, '#FFB6C1');
+    ballGrad.addColorStop(0.3, '#FF69B4');
+    ballGrad.addColorStop(0.7, '#FF1493');
+    ballGrad.addColorStop(1, '#DC143C');
+    
+    ctx.fillStyle = ballGrad;
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.scale(squash, 1/squash);
+    ctx.beginPath();
+    ctx.arc(0, 0, player.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+    
+    // Ball highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.beginPath();
+    ctx.ellipse(player.x-7, player.y-10, player.r*0.3, player.r*0.2, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Ball sparkles when jumping
+    if(!player.grounded){
+      for(let s = 0; s < 3; s++){
+        const sparkleAngle = (s / 3) * Math.PI * 2 + animTime * 6;
+        const sparkleX = player.x + Math.cos(sparkleAngle) * (player.r + 15);
+        const sparkleY = player.y + Math.sin(sparkleAngle) * (player.r + 15);
+        const sparkleAlpha = 0.7 + 0.3 * Math.sin(animTime * 10 + s);
+        
+        ctx.fillStyle = `rgba(255,215,0,${sparkleAlpha})`;
+        ctx.beginPath();
+        ctx.arc(sparkleX, sparkleY, 2, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // Game over/start screen
+    if(!running){
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; 
+      ctx.fillRect(0,0,W,H);
+      
+      // Title
+      ctx.fillStyle = '#FF6B6B'; 
+      ctx.font = 'bold 32px Fredoka One, cursive'; 
+      ctx.textAlign='center';
+      const titleY = H/2 - 30;
+      ctx.fillText('🌟 Ready for Adventure? 🌟', W/2, titleY);
+      
+      // Instructions
+      ctx.font = '18px Nunito, sans-serif'; 
+      ctx.fillStyle = '#2F4F4F';
+      ctx.fillText('Tap anywhere or press Space to start jumping!', W/2, titleY + 40);
+      ctx.font = '14px Nunito, sans-serif'; 
+      ctx.fillStyle = '#696969';
+      ctx.fillText('🎯 Avoid the colorful blocks and see how far you can go! 🚀', W/2, titleY + 65);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // Helper: rounded rectangle
+  function roundRect(ctx, x, y, w, h, r, fill, stroke){
+    if (typeof r === 'undefined') r = 5;
+    ctx.beginPath(); 
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+    if(fill) ctx.fill(); 
+    if(stroke) ctx.stroke();
+  }
+
+  // Start the game loop
+  loop(performance.now());
+
+  // Responsive canvas
+  function fitCanvas(){
+    const containerW = Math.min(920, window.innerWidth - 48);
+    canvas.style.width = Math.min(containerW, 900) + 'px';
+  }
+  fitCanvas(); 
+  window.addEventListener('resize', fitCanvas);
+  </script>
+</body>
+</html>
