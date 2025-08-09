@@ -63,11 +63,5 @@ You can try out the live demo [here](https://davidsovan.github.io/Reveal-Locatio
 
 This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- Thanks to all contributors who helped with testing and feedback.
-- Special thanks to the open-source community for the amazing libraries used in this project.
-
----
 
 Made with ❤️ by [David Sovan](https://github.com/DavidSovan)
