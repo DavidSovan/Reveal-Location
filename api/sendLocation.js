@@ -58,13 +58,30 @@ export default async function handler(req, res) {
     });
   }
 
-  const { lat, lon } = req.body;
+  const { lat, lon, username } = req.body;
 
   if (!lat || !lon) {
     return res.status(400).json({
       error: "Missing latitude or longitude",
       timestamp: formatTimestamp(),
     });
+  }
+
+  // More permissive username validation
+  let safeUsername = 'Anonymous';
+  if (username && typeof username === 'string') {
+    safeUsername = username
+      .trim()
+      .substring(0, 50) // Limit length
+      // Only remove potentially dangerous characters
+      .replace(/[<>&"']/g, '')
+      // Replace multiple spaces with single space
+      .replace(/\s+/g, ' ');
+      
+    // If after cleaning the username is empty, use default
+    if (!safeUsername) {
+      safeUsername = 'Anonymous';
+    }
   }
 
   const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
@@ -78,7 +95,8 @@ export default async function handler(req, res) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: process.env.TELEGRAM_CHAT_ID,
-          text: `📍 New Location!\n${mapsLink}\nLat: ${lat}\nLon: ${lon}\nTime: ${timestamp}`,
+          text: `👤 ${safeUsername}\n📍 Location: ${mapsLink}\nLat: ${lat}\nLon: ${lon}\nTime: ${timestamp}`,
+          parse_mode: 'HTML',
         }),
       }
     );

